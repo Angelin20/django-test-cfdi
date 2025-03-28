@@ -7,7 +7,7 @@ import json
 
 class Customer(models.Model):
     id = models.AutoField(primary_key=True)
-    id_branch = models.ForeignKey(branch, on_delete=models.CASCADE)
+    branch = models.ForeignKey(branch, on_delete=models.CASCADE,verbose_name="Branch name")
     name = models.CharField(max_length=100,blank=True)
     phone =  models.CharField(max_length=40,blank=True,validators=[MinLengthValidator(10)])
     email = models.CharField(max_length=240,blank=True)
@@ -23,7 +23,7 @@ class Customer(models.Model):
     tax_regime = models.CharField(max_length=5,validators=[MinLengthValidator(1), MaxLengthValidator(3)],default='601')
     lat = models.CharField(max_length=50,blank=True,null=True)
     long = models.CharField(max_length=50,blank=True,null=True)
-    photo = models.ImageField(upload_to='branch',blank=True)
+    photo = models.ImageField(upload_to='customer',blank=True)
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
     date_update = models.DateTimeField(auto_now=False, auto_now_add=True)
     deleted = models.BooleanField(default=False)
