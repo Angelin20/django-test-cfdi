@@ -4,12 +4,12 @@ from core.models import current_version, branch
 
 class category(models.Model):
     id = models.AutoField(primary_key=True)
-    id_branch = models.ForeignKey(branch, on_delete=models.CASCADE,blank=True,null=True)
-    name = models.CharField(max_length=100)
+    branch = models.ForeignKey(branch, on_delete=models.CASCADE,blank=True,null=True)
+    name = models.CharField(max_length=100,verbose_name="Name of category")
     description = models.CharField(max_length=500,blank=True)
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
     date_update = models.DateTimeField(auto_now=False, auto_now_add=True)
-    id_current_version = models.ForeignKey(current_version, on_delete=models.CASCADE,blank=True,null=True)
+    current_version = models.ForeignKey(current_version, on_delete=models.CASCADE,blank=True,null=True)
     deleted = models.BooleanField(default=False)
 
     class Meta:
