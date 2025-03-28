@@ -1,15 +1,52 @@
 from django.contrib import admin
 from .models import Invoice, Invoicedetail
-from .forms import InvoiceForm
+from .forms import InvoiceForm, InvoiceDetailForm
 
+class InvoiceDetailInline(admin.StackedInline):
+    model = Invoicedetail
+    fields = ['product', 'quantity', 'total', 'total_taxes']
+    form = InvoiceDetailForm
+    extra = 1
 
-@admin.register(Invoice)
 class InvoiceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'id_customer', 'total','state','date_sale')
-    search_fields = ('id', 'customer','date_sale','state')
+    inlines = [InvoiceDetailInline]
+    list_display = ('customer', 'total','total_taxes','date_sale', 'get_detail_product')
+    fields = ['customer', 'total','total_taxes','date_sale']
+    search_fields = ('customer__name', )
+    list_filter = [
+        'customer__name',
+        'state',
+        'date_sale',
+        'total'
+    ]
     form = InvoiceForm
+    class Media:
+        js = (
+            'js/admin.js',   # inside app static folder
+        )
+    
 
-@admin.register(Invoicedetail)
+    def get_detail_product(self, obj):
+        qs = Invoicedetail.objects.filter(invoice=obj.id).values_list('product__name', 'quantity', 'total',)
+        ret = []
+        for q in qs:
+            q = list(q)
+            ret.append(q[0] + ' ( Qty:' + str(q[1]) + ' - Tot:$' + str(q[2]) +')')
+        return ret
+    get_detail_product.short_description = 'Product(s)'
+
 class InvoiceDetailAdmin(admin.ModelAdmin):
-    list_display = ('id', 'id_invoice', 'id_product','total','quantity','total_taxes')
-    search_fields = ('id', 'id_invoice','id_product')
+    list_display = ('invoice','invoice__customer__name','invoice__total','invoice__state','invoice__date_sale', 'product__name','total','quantity','total_taxes')
+    search_fields = ('invoice__customer__name','product__name','invoice__state','invoice__date_sale','invoice__total','total','quantity','total_taxes')
+    list_filter = [
+        'invoice__customer__name',
+        'product__name',
+        'invoice__state',
+        'invoice__date_sale',
+        'invoice__total',
+        'total',
+        'quantity',
+        'total_taxes'
+    ]
+
+admin.site.register(Invoice, InvoiceAdmin)
