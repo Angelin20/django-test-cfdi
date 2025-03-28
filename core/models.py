@@ -4,12 +4,12 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator
 # Models for general use into app
 class current_version(models.Model):
     id = models.AutoField(primary_key=True)
-    name  = models.CharField(max_length=120,blank=True)
+    name  = models.CharField(max_length=120,blank=True,verbose_name="Version Name")
     features = models.CharField(max_length=120,blank=True)
     changes = models.TextField(max_length=2400,blank=True)
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
     date_update = models.DateTimeField(auto_now=False, auto_now_add=True)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False,verbose_name="Deleted Row")
 
     class Meta:
         verbose_name = "Version"
@@ -21,7 +21,7 @@ class current_version(models.Model):
 
 class cfdi_provider(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100,blank=True)
+    name = models.CharField(max_length=100,blank=True,verbose_name="CFDI Provider Name")
     user = models.CharField(max_length=240,blank=True)
     authorization = models.CharField(max_length=240,blank=True)
     url = models.CharField(max_length=240,blank=True)
@@ -30,7 +30,7 @@ class cfdi_provider(models.Model):
     email_contact = models.CharField(max_length=240,blank=True)
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
     date_update = models.DateTimeField(auto_now=False, auto_now_add=True)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False,verbose_name="Deleted Row")
     
     class Meta:
         verbose_name = "CFDI Provider"
@@ -42,14 +42,14 @@ class cfdi_provider(models.Model):
 
 class company(models.Model):
     id = models.AutoField(primary_key=True)
-    company_key = models.CharField(max_length=128,blank=True)
-    company_name = models.CharField(max_length=100)
+    code = models.CharField(max_length=128,blank=True)
+    name = models.CharField(max_length=100,verbose_name="Company Name")
     rfc = models.CharField(max_length=40,validators=[MinLengthValidator(10), MaxLengthValidator(13)])
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
     date_update = models.DateTimeField(auto_now=False, auto_now_add=True)
     photo = models.ImageField(upload_to='company',blank=True)
-    id_current_version = models.ForeignKey(current_version, on_delete=models.CASCADE,blank=True,null=True)
-    deleted = models.BooleanField(default=False)
+    current_version = models.ForeignKey(current_version, on_delete=models.CASCADE,blank=True,null=True)
+    deleted = models.BooleanField(default=False,verbose_name="Deleted Row")
 
     class Meta:
         verbose_name = "Company"
@@ -57,14 +57,14 @@ class company(models.Model):
         ordering = ['-date_creation']
 
     def __str__(self):
-        return self.company_key
+        return self.name
 
 class branch(models.Model):
     id = models.AutoField(primary_key=True)
-    id_company = models.ForeignKey(company, on_delete=models.CASCADE)
-    id_cfdi_provider = models.ForeignKey(cfdi_provider, on_delete=models.CASCADE,blank=True,null=True)
-    branch_key = models.CharField(max_length=128,blank=True)
-    name = models.CharField(max_length=100,blank=True)
+    company = models.ForeignKey(company, on_delete=models.CASCADE)
+    cfdi_provider = models.ForeignKey(cfdi_provider, on_delete=models.CASCADE,blank=True,null=True)
+    code = models.CharField(max_length=128,blank=True)
+    name = models.CharField(max_length=100,blank=True,verbose_name="Branch Name")
     phone =  models.CharField(max_length=40,blank=True,validators=[MinLengthValidator(10)])
     email = models.CharField(max_length=240,blank=True)
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
@@ -76,7 +76,7 @@ class branch(models.Model):
     conf_db =  models.CharField(max_length=80,blank=True)
     conf_port =  models.CharField(max_length=80,blank=True,null=True)
     photo = models.ImageField(upload_to='branch',blank=True)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False,verbose_name="Deleted Row")
     address = models.CharField(max_length=500,blank=True)
     lat = models.CharField(max_length=50,blank=True,null=True)
     long = models.CharField(max_length=50,blank=True,null=True)
@@ -87,5 +87,5 @@ class branch(models.Model):
         ordering = ['-date_creation']
 
     def __str__(self):
-        return self.branch_key
+        return self.name
     
